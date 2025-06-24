@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // Referencias a los elementos del DOM
+    // --- Referencias ---
     const loader = document.getElementById('loader');
     const welcomeOverlay = document.getElementById('welcome-overlay');
     const sapoDragon = document.getElementById('sapo-dragon-welcome');
@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const volumeSlider = document.getElementById('volume-slider');
     const dragonTooltip = floatingDragon ? floatingDragon.querySelector('#dragon-tooltip') : null;
 
-    // Loader y overlay de bienvenida
+    // --- Loader y overlay de bienvenida ---
     if (sapoDragon && loader && welcomeOverlay) {
         welcomeOverlay.style.display = "none";
         loader.style.display = "flex";
@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (welcomeOverlay) welcomeOverlay.style.display = 'flex';
     }
 
-    // Entrada al mundo: click o enter en sapo
+    // --- Entrada al mundo: click o enter en sapo ---
     if (sapoDragon && welcomeOverlay && floatingDragon) {
         sapoDragon.style.cursor = 'pointer';
         sapoDragon.title = 'Entrar al Otro Mundo'; 
@@ -69,7 +69,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Control de música
+    // --- Control de música ---
     function updateMusicIcon() {
         if (!music || !musicIconInitial) return; 
         if (!music.paused) {
@@ -113,7 +113,7 @@ document.addEventListener('DOMContentLoaded', () => {
         updateMusicIcon();
     }
 
-    // Partículas ambientales con tsParticles
+    // --- Partículas ambientales con tsParticles ---
     if (window.tsParticles) {
         tsParticles.load('ambient-particles', {
             fullScreen: { enable: false },
@@ -143,17 +143,15 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Carrusel de imágenes
+    // --- Carrusel de imágenes responsive con arrastre/clic/touch y autoavance ---
     const carouselImages = [];
-    for (let i = 1; i <= 240; i++) {
+    for (let i = 1; i <= 452; i++) {
         const num = i.toString().padStart(3, '0');
         carouselImages.push(`img/sucu${num}.jpg`);
     }
     let currentIndex = 0;
     const carouselImg = document.getElementById('carousel-image');
-    if (carouselImg && carouselImages.length > 0) {
-        carouselImg.src = carouselImages[currentIndex];
-    }
+    // Efectos mágicos
     const magicEffects = [
         "filter: brightness(1.2) contrast(1.8) saturate(2.8) hue-rotate(40deg);",
         "filter: hue-rotate(120deg) saturate(2.8) brightness(1.4);",
@@ -210,70 +208,124 @@ document.addEventListener('DOMContentLoaded', () => {
     while (magicEffects.length < 100) {
         magicEffects.push(magicEffects[Math.floor(Math.random() * magicEffects.length)]);
     }
+
     function setOriginalWithTransition() {
         if (carouselImg) {
             carouselImg.style.transition = 'filter 0.8s cubic-bezier(.66,0,.33,1)';
             carouselImg.style.filter = '';
         }
     }
-    function showMagicEffect() {
+
+    function showMagicEffect(next = true) {
         if (!carouselImg || carouselImages.length === 0) return;
-        currentIndex = (currentIndex + 1) % carouselImages.length;
+        if (next) {
+            currentIndex = (currentIndex + 1) % carouselImages.length;
+        } else {
+            currentIndex = (currentIndex - 1 + carouselImages.length) % carouselImages.length;
+        }
         carouselImg.src = carouselImages[currentIndex];
         const randomIndex = Math.floor(Math.random() * magicEffects.length);
         carouselImg.style.transition = 'filter 0.45s cubic-bezier(.66,0,.33,1)';
         carouselImg.style.filter = magicEffects[randomIndex].replace('filter:', '').replace(';', '');
         setTimeout(setOriginalWithTransition, 600);
-    }
-    let touchStartX = null;
-    let touchEndX = null;
-    let isMobile = window.matchMedia("(max-width: 700px)").matches;
-    function handleGesture() {
-        if (touchStartX === null || touchEndX === null) return;
-        const diff = touchEndX - touchStartX;
-        if (Math.abs(diff) > 40) {
-            setOriginalWithTransition();
-            setTimeout(() => {
-                if (diff > 0) {
-                    currentIndex = (currentIndex - 1 + carouselImages.length) % carouselImages.length;
-                } else {
-                    currentIndex = (currentIndex + 1) % carouselImages.length;
-                }
-                carouselImg.src = carouselImages[currentIndex];
-            }, 250); 
-        }
-        touchStartX = null;
-        touchEndX = null;
-    }
-    if (carouselImg) {
-        if (isMobile) {
-            carouselImg.addEventListener('touchstart', (e) => {
-                touchStartX = e.changedTouches[0].screenX;
-            });
-            carouselImg.addEventListener('touchend', (e) => {
-                touchEndX = e.changedTouches[0].screenX;
-                handleGesture();
-            });
-            carouselImg.addEventListener('click', showMagicEffect);
-        } else {
-            carouselImg.addEventListener('click', showMagicEffect);
-            document.addEventListener('keydown', (e) => {
-                if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
-                    setOriginalWithTransition();
-                    setTimeout(() => {
-                        if (e.key === 'ArrowRight') {
-                            currentIndex = (currentIndex + 1) % carouselImages.length;
-                        } else {
-                            currentIndex = (currentIndex - 1 + carouselImages.length) % carouselImages.length;
-                        }
-                        carouselImg.src = carouselImages[currentIndex];
-                    }, 250); 
-                }
-            });
-        }
+        restartAutoSlide(); // reinicia el temporizador
     }
 
-    // Dragón flotante (tooltip y efecto)
+    // --- Responsive touch y click para móvil y escritorio ---
+    let touchStartX = null;
+    let touchEndX = null;
+    let dragging = false;
+    let dragThreshold = 35; // px mínimo para considerar swipe
+    let autoSlideTimer = null;
+    const autoSlideDelay = 6000;
+
+    function restartAutoSlide() {
+        if (autoSlideTimer) clearTimeout(autoSlideTimer);
+        autoSlideTimer = setTimeout(() => showMagicEffect(true), autoSlideDelay);
+    }
+
+    if (carouselImg && carouselImages.length > 0) {
+        carouselImg.src = carouselImages[currentIndex];
+
+        // Touch (móvil)
+        carouselImg.addEventListener('touchstart', (e) => {
+            if (e.touches.length > 1) return;
+            touchStartX = e.touches[0].screenX;
+            dragging = true;
+            if (autoSlideTimer) clearTimeout(autoSlideTimer);
+        });
+        carouselImg.addEventListener('touchmove', (e) => {
+            if (!dragging) return;
+            touchEndX = e.touches[0].screenX;
+        });
+        carouselImg.addEventListener('touchend', (e) => {
+            if (!dragging) return;
+            dragging = false;
+            if (touchStartX !== null && touchEndX !== null) {
+                const diff = touchEndX - touchStartX;
+                if (Math.abs(diff) > dragThreshold) {
+                    showMagicEffect(diff < 0); // true=next, false=prev
+                } else {
+                    // Tap sin swipe = avanzar
+                    showMagicEffect(true);
+                }
+            } else {
+                // Tap sin swipe = avanzar
+                showMagicEffect(true);
+            }
+            touchStartX = null; touchEndX = null;
+        });
+
+        // Click (desktop y también tactil/click en móvil)
+        carouselImg.addEventListener('click', () => {
+            showMagicEffect(true);
+        });
+
+        // Desktop: swipe con mouse (drag)
+        let mouseDownX = null;
+        carouselImg.addEventListener('mousedown', (e) => {
+            mouseDownX = e.screenX;
+            dragging = true;
+            if (autoSlideTimer) clearTimeout(autoSlideTimer);
+        });
+        carouselImg.addEventListener('mousemove', (e) => {
+            if (!dragging || mouseDownX === null) return;
+            touchEndX = e.screenX;
+        });
+        carouselImg.addEventListener('mouseup', (e) => {
+            if (!dragging) return;
+            dragging = false;
+            if (mouseDownX !== null && touchEndX !== null) {
+                const diff = touchEndX - mouseDownX;
+                if (Math.abs(diff) > dragThreshold) {
+                    showMagicEffect(diff < 0); // true=next, false=prev
+                } else {
+                    showMagicEffect(true);
+                }
+            } else {
+                showMagicEffect(true);
+            }
+            mouseDownX = null; touchEndX = null;
+        });
+        carouselImg.addEventListener('mouseleave', () => {
+            dragging = false; mouseDownX = null; touchEndX = null;
+        });
+
+        // Teclado (desktop)
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') {
+                showMagicEffect(true);
+            }
+            if (e.key === 'ArrowLeft') {
+                showMagicEffect(false);
+            }
+        });
+
+        // Auto-slide
+        restartAutoSlide();
+    }
+
+    // --- Dragón flotante (tooltip y efecto) ---
     let tooltipTimeout = null;
     if (floatingDragon) {
         floatingDragon.addEventListener('click', (e) => {

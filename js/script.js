@@ -35,12 +35,27 @@ document.addEventListener('DOMContentLoaded', () => {
                 welcomeOverlay.style.display = 'none';
                 // Muestra el dragón flotante
                 floatingDragon.style.display = 'flex';
-                // Intenta reproducir la música (algunos navegadores requieren interacción)
+                
+                // *** INICIO DE LA MODIFICACIÓN CLAVE PARA LA MÚSICA ***
                 if (music) {
-                    music.volume = 0.55;
-                    music.play().catch(()=>{});
-                    updateMusicIcon();
+                    // Intenta reproducir la música y maneja la promesa
+                    const playPromise = music.play();
+
+                    if (playPromise !== undefined) {
+                        playPromise.then(() => {
+                            // La reproducción se inició correctamente
+                            music.volume = 0.55; // Ajusta el volumen una vez que se ha empezado a reproducir
+                            updateMusicIcon(); // Actualiza el icono a "sonando"
+                        }).catch(error => {
+                            // La reproducción fue bloqueada por el navegador (ej. política de autoplay)
+                            console.warn('La reproducción automática de audio fue bloqueada:', error);
+                            // Muestra el icono de "silencio" si no se pudo reproducir
+                            updateMusicIcon(); 
+                        });
+                    }
                 }
+                // *** FIN DE LA MODIFICACIÓN CLAVE PARA LA MÚSICA ***
+
             }, { once: true });
         });
         // Accesibilidad: enter o espacio
@@ -52,26 +67,42 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Botón de música en dragón flotante
     function updateMusicIcon() {
+        if (!music || !musicIcon) return; // Asegurar que existan los elementos
+
         if (!music.paused) {
-            musicIcon.textContent = "🔊";
+            musicIcon.textContent = "🔊"; // Sonando
             musicToggle.title = "Pausar música";
         } else {
-            musicIcon.textContent = "🔈";
+            musicIcon.textContent = "🔈"; // Silenciado
             musicToggle.title = "Reproducir música";
         }
     }
+
     if (musicToggle && music) {
         musicToggle.addEventListener('click', () => {
             if (music.paused) {
-                music.play();
+                // Intenta reproducir solo si está pausada
+                const playPromise = music.play();
+                if (playPromise !== undefined) {
+                    playPromise.then(() => {
+                        updateMusicIcon(); // Actualiza el icono si se reproduce
+                    }).catch(error => {
+                        console.warn('Error al intentar reproducir música por el usuario:', error);
+                        // El icono ya estará en "pausado" si falló la reproducción.
+                    });
+                }
             } else {
+                // Pausa la música
                 music.pause();
+                updateMusicIcon(); // Actualiza el icono a "silencio"
             }
-            updateMusicIcon();
         });
         // También actualizar icono si música se pausa/play por otras razones
         music.addEventListener('play', updateMusicIcon);
         music.addEventListener('pause', updateMusicIcon);
+        
+        // Llama a updateMusicIcon al cargar para establecer el estado inicial correcto
+        updateMusicIcon(); 
     }
 
     // Partículas ambientales

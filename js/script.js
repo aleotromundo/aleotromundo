@@ -145,7 +145,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Carrusel de imágenes responsive con arrastre/clic/touch y autoavance ---
     const carouselImages = [];
-    for (let i = 1; i <= 452; i++) {
+    for (let i = 1; i <= 239; i++) {
         const num = i.toString().padStart(3, '0');
         carouselImages.push(`img/sucu${num}.jpg`);
     }

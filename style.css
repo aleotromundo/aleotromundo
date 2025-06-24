@@ -246,3 +246,50 @@ body {
         right: 8px;
     }
 }
+/* Botón Flotante de WhatsApp */
+.whatsapp-float {
+    position: fixed;
+    width: 60px;
+    height: 60px;
+    bottom: 40px;
+    right: 40px;
+    background: rgba(33, 255, 197, 0.15); /* Fondo etéreo, semitransparente como tu overlay */
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 0 15px rgba(33, 255, 197, 0.4), /* Sombra luminosa y etérea */
+                0 0 5px rgba(255, 255, 255, 0.6); /* Pequeño halo blanco */
+    z-index: 10000; /* Asegura que esté por encima de la mayoría, pero debajo del loader/overlay principal si es necesario */
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out, background 0.3s ease-in-out;
+    cursor: pointer;
+    backdrop-filter: blur(2px); /* Un toque de blur para el efecto "flotante" */
+}
+
+.whatsapp-float img {
+    width: 34px; /* Tamaño del icono */
+    height: 34px;
+    filter: drop-shadow(0 0 5px rgba(0, 255, 192, 0.4)) brightness(1.2); /* Efecto de brillo y sombra en el icono */
+    transition: filter 0.3s ease-in-out;
+}
+
+.whatsapp-float:hover {
+    transform: scale(1.15); /* Más pronunciado para tu estilo */
+    background: rgba(33, 255, 197, 0.3); /* Un poco más de color al pasar el mouse */
+    box-shadow: 0 0 25px rgba(33, 255, 197, 0.7), /* Sombra más intensa al pasar el mouse */
+                0 0 10px rgba(255, 255, 255, 0.8);
+}
+
+/* Responsividad para pantallas pequeñas */
+@media (max-width: 768px) {
+    .whatsapp-float {
+        width: 50px;
+        height: 50px;
+        bottom: 25px;
+        right: 25px;
+    }
+    .whatsapp-float img {
+        width: 30px;
+        height: 30px;
+    }
+}

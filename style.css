@@ -157,7 +157,7 @@ body {
 /* ========== DRAGÓN FLOTANTE ========== */
 #floating-dragon {
     position: fixed;
-    top: 20px;       /* Cambiado de 2vw a 20px para evitar pegarse arriba */
+    top: 30px;       /* Cambiado de 2vw a 20px para evitar pegarse arriba */
     right: 2vw;
     width: 13vw;
     min-width: 90px;

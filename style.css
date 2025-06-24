@@ -157,7 +157,7 @@ body {
 /* ========== DRAGÓN FLOTANTE ========== */
 #floating-dragon {
     position: fixed;
-    top: 2vw;
+    top: 20px;       /* Cambiado de 2vw a 20px para evitar pegarse arriba */
     right: 2vw;
     width: 13vw;
     min-width: 90px;
@@ -410,7 +410,7 @@ body {
         width: 25vw;
         min-width: 62px;
         max-width: 110px;
-        top: 8px;
+        top: 16px;     /* Cambiado de 8px a 16px para no pegarse arriba */
         right: 8px;
         gap: 5px;
     }
@@ -461,5 +461,3 @@ body {
         height: 30px;
     }
 }
-
-/* ========== FIN ========== */

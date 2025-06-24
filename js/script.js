@@ -248,7 +248,76 @@ document.addEventListener('DOMContentLoaded', () => {
         carouselImg.src = carouselImages[currentIndex];
 
         // Touch (móvil)
-        carouselImg.addEventListener('touchstart', (e) => {
+  let scale = 1; // zoom actual
+let lastTouchDist = null;
+
+// --- ZOOM CON PINCH EN MÓVIL ---
+if (carouselImg) {
+    carouselImg.addEventListener("touchstart", function(e) {
+        if (e.touches.length === 2) {
+            lastTouchDist = Math.hypot(
+                e.touches[0].clientX - e.touches[1].clientX,
+                e.touches[0].clientY - e.touches[1].clientY
+            );
+        }
+    }, {passive: false});
+    carouselImg.addEventListener("touchmove", function(e) {
+        if (e.touches.length === 2 && lastTouchDist !== null) {
+            e.preventDefault();
+            const currentDist = Math.hypot(
+                e.touches[0].clientX - e.touches[1].clientX,
+                e.touches[0].clientY - e.touches[1].clientY
+            );
+            let delta = currentDist - lastTouchDist;
+            // Sensibilidad de zoom
+            scale += delta * 0.004;
+            scale = Math.max(1, Math.min(3, scale));
+            carouselImg.style.transform = `scale(${scale})`;
+            lastTouchDist = currentDist;
+        }
+    }, {passive: false});
+    carouselImg.addEventListener("touchend", function(e) {
+        if (e.touches.length < 2) {
+            lastTouchDist = null;
+        }
+    });
+}
+
+// --- ZOOM CON SCROLL EN DESKTOP ---
+carouselImg.addEventListener("wheel", function(e) {
+    if (e.ctrlKey || !('ontouchstart' in window)) { // Ctrl+rueda o desktop
+        e.preventDefault();
+        // Sensibilidad de zoom
+        let delta = e.deltaY > 0 ? -0.1 : 0.1;
+        scale += delta;
+        scale = Math.max(1, Math.min(3, scale));
+        carouselImg.style.transform = `scale(${scale})`;
+    }
+}, { passive: false });
+
+// --- RESETEAR ZOOM AL CAMBIAR DE IMAGEN ---
+function resetZoom() {
+    scale = 1;
+    carouselImg.style.transform = "";
+}
+// Cuando cambies de imagen, llama resetZoom() antes de aplicar el filtro mágico:
+function showMagicEffect(next = true) {
+    if (!carouselImg || carouselImages.length === 0) return;
+    resetZoom();
+    // ...el resto de tu función showMagicEffect...
+    if (next) {
+        currentIndex = (currentIndex + 1) % carouselImages.length;
+    } else {
+        currentIndex = (currentIndex - 1 + carouselImages.length) % carouselImages.length;
+    }
+    carouselImg.src = carouselImages[currentIndex];
+    const randomIndex = Math.floor(Math.random() * magicEffects.length);
+    carouselImg.style.transition = 'filter 0.45s cubic-bezier(.66,0,.33,1)';
+    carouselImg.style.filter = magicEffects[randomIndex].replace('filter:', '').replace(';', '');
+    setTimeout(setOriginalWithTransition, 600);
+    restartAutoSlide(); // reinicia el temporizador
+}
+      carouselImg.addEventListener('touchstart', (e) => {
             if (e.touches.length > 1) return;
             touchStartX = e.touches[0].screenX;
             dragging = true;

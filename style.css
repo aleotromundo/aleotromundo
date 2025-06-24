@@ -293,3 +293,516 @@ body {
         height: 30px;
     }
 }
+/* Generales y Resets */
+:root {
+    --color-primary: #21FFC5; /* Verde azulado brillante (tu color principal) */
+    --color-secondary: #B6E6F8; /* Azul claro para contrastes */
+    --color-text: #fff; /* Blanco para texto general */
+    --color-background-dark: #0d0d0d; /* Fondo muy oscuro */
+    --font-fancy: 'Cormorant Garamond', serif;
+    --font-body: 'Poppins', sans-serif;
+}
+
+/* Importar fuentes */
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;700&family=Poppins:wght@300;400;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Segoe+UI&display=swap'); /* Tu fuente para el body */
+
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+    /* overflow: hidden; /* Esto lo quitamos si queremos overflow-x: hidden */
+    overflow-x: hidden; /* Tu estilo original */
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Arial, sans-serif; /* Tu fuente principal */
+    background: linear-gradient(127deg, #f9f9f9 35%, #e9fff7 100%); /* Tu fondo */
+    color: #222; /* Tu color de texto principal (generalmente para el fondo claro) */
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: relative; /* Para posicionar elementos fijos correctamente */
+    filter: none; /* Asegura que no haya filtro inicial */
+    transition: filter 0.35s ease-out; /* Transición para el efecto de brillo/blur del cuerpo */
+}
+
+/* Ambient Particles */
+#ambient-particles {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 0;
+    pointer-events: none;
+    background: transparent;
+    animation: particles-glow-move 18s linear infinite alternate;
+}
+@keyframes particles-glow-move {
+    0% { filter: brightness(1.08) hue-rotate(0deg);}
+    100% { filter: brightness(1.25) hue-rotate(60deg);}
+}
+
+/* Loader inicial */
+#loader {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(10,20,25,0.92); /* Tu fondo */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 20000;
+    transition: opacity 0.6s;
+    opacity: 1; /* Asegura que empieza visible */
+}
+#loader-img {
+    width: 80px; /* Tu tamaño */
+    height: 80px;
+    margin-bottom: 1.2rem;
+    filter: drop-shadow(0 0 15px var(--color-primary)); /* Resplandor al GIF como tenías */
+}
+.loader-text {
+    color: #caffec; /* Tu color */
+    font-size: 1.2rem;
+    letter-spacing: 0.1em;
+}
+
+/* Overlay de bienvenida */
+#welcome-overlay {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    /* Tu degradado de bienvenida y filtros */
+    background: radial-gradient(circle at 60% 40%, rgba(33,255,197,0.12) 0%, rgba(0,0,0,0.92) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 11000;
+    color: #fff;
+    transition: opacity 0.7s ease;
+    opacity: 1;
+    backdrop-filter: blur(3px) contrast(1.1) brightness(1.04);
+    animation: overlay-bg-glow 8s linear infinite alternate;
+}
+#welcome-overlay.hide {
+    opacity: 0;
+    pointer-events: none;
+}
+/* Animación de brillo para el fondo del overlay */
+@keyframes overlay-bg-glow {
+    0% { backdrop-filter: blur(3px) contrast(1.1) brightness(1.04); }
+    100% { backdrop-filter: blur(4px) contrast(1.2) brightness(1.1); }
+}
+
+.welcome-content {
+    text-align: center;
+    max-width: 500px;
+    padding: 2rem;
+    /* Tu estilo de la tarjeta de bienvenida */
+    background: rgba(30,30,30,0.7);
+    border-radius: 25px;
+    box-shadow: 0 8px 32px 0 rgba(0,0,0,0.6), 0 0 120px #00ffc040;
+    animation: pulse-card 3s ease-in-out infinite alternate;
+}
+/* Animación de pulso para la tarjeta de bienvenida */
+@keyframes pulse-card {
+    0% { transform: scale(1); box-shadow: 0 8px 32px 0 rgba(0,0,0,0.6), 0 0 120px #00ffc040; }
+    100% { transform: scale(1.015); box-shadow: 0 12px 40px 0 rgba(0,0,0,0.7), 0 0 150px #00ffc060; }
+}
+
+.welcome-content h1 {
+    font-family: var(--font-fancy); /* Mantengo tu fuente fancy para los títulos */
+    font-size: clamp(2em, 5vw, 3.8em); /* Responsive font size */
+    color: var(--color-primary); /* Tu color primario */
+    margin-bottom: 20px;
+    text-shadow: 0 0 15px rgba(33, 255, 197, 0.7), 0 0 5px rgba(255, 255, 255, 0.5);
+    animation: fadeInScale 1.5s ease-out forwards; /* Tus animaciones */
+    animation-delay: 0.5s;
+    opacity: 0;
+    transform: scale(0.9);
+}
+
+.welcome-content p {
+    font-family: var(--font-body); /* Tu fuente de cuerpo */
+    font-size: clamp(1em, 2.5vw, 1.3em);
+    color: var(--color-secondary);
+    margin-bottom: 40px;
+    opacity: 0;
+    animation: fadeIn 1.5s ease-out forwards; /* Tus animaciones */
+    animation-delay: 1s;
+}
+
+#sapo-dragon-welcome {
+    width: 260px; /* Tu tamaño */
+    max-width: 88vw;
+    margin: 2.2rem auto 0 auto;
+    display: block;
+    border-radius: 1.5em;
+    /* Tus sombras y transiciones */
+    box-shadow: 0 2px 32px #42ffe855,0 0 20px #fff7;
+    cursor: pointer;
+    transition: transform 0.18s, box-shadow 0.22s;
+    opacity: 0; /* Empieza invisible, animado por fadeInBounce */
+    animation: fadeInBounce 1.5s ease-out forwards; /* Tu animación */
+    animation-delay: 1.5s;
+}
+#sapo-dragon-welcome:active {
+    transform: scale(1.08) rotate(-3deg);
+    box-shadow: 0 2px 56px #42ffe899,0 0 28px #fff9;
+}
+#sapo-dragon-welcome:focus {
+    outline: 2px solid #00ffc0;
+    outline-offset: 4px; /* Pequeño offset para que no se pegue al gif */
+    border-radius: 1.5em; /* Asegura que el outline sea redondeado como el gif */
+}
+
+/* Animaciones de bienvenida (tus animaciones) */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+@keyframes fadeInScale {
+    from { opacity: 0; transform: scale(0.9); }
+    to { opacity: 1; transform: scale(1); }
+}
+@keyframes fadeInBounce {
+    0% { opacity: 0; transform: translateY(20px); }
+    70% { opacity: 1; transform: translateY(-5px); }
+    100% { transform: translateY(0); opacity: 1; }
+}
+
+
+/* Floating Dragon */
+#floating-dragon {
+    position: fixed;
+    top: 2vw; /* Tu posicionamiento */
+    right: 2vw; /* Tu posicionamiento */
+    width: 13vw; /* Tu tamaño relativo */
+    min-width: 90px; /* Tu min-width */
+    max-width: 180px; /* Tu max-width */
+    z-index: 22222; /* Tu z-index */
+    pointer-events: auto; /* Tu pointer-events */
+    user-select: none; /* Tu user-select */
+    display: flex;
+    flex-direction: column; /* Lo mantenemos como columna para apilar el dragón y el control */
+    align-items: flex-end; /* Alinea los elementos a la derecha dentro de la columna */
+    gap: 10px; /* Espacio entre el dragón y el contenedor de música */
+
+    /* Elimino los estilos de fondo y sombra directos aquí para aplicar el efecto solo al music-control-container */
+    /* La interacción de hover la manejará el JavaScript para el tooltip y el body filter */
+    transition: transform 0.3s ease-in-out; /* Solo para efectos de hover/active si los hubiera */
+}
+
+#floating-dragon img {
+    width: 100%; /* El dragón ocupa el 100% del ancho del #floating-dragon */
+    height: auto;
+    display: block;
+    filter: drop-shadow(0 2px 12px rgba(0,0,0,0.22)); /* Tu sombra */
+    transition: filter 0.3s, box-shadow 0.3s, transform 0.3s;
+    animation: dragonFloat 7s ease-in-out infinite, dragonBlink 8s infinite; /* Tus animaciones */
+}
+@keyframes dragonFloat { /* Tus keyframes */
+    0% { transform: translateY(0) rotate(-2deg) scale(1);}
+    10% { transform: translateY(-12px) rotate(2deg) scale(1.04);}
+    25% { transform: translateY(-18px) rotate(-3deg) scale(1.07);}
+    35% { transform: translateY(-12px) rotate(3deg) scale(1.02);}
+    50% { transform: translateY(0) rotate(-1deg) scale(1);}
+    65% { transform: translateY(9px) rotate(2deg) scale(1.01);}
+    75% { transform: translateY(14px) rotate(-2deg) scale(1.02);}
+    87% { transform: translateY(7px) rotate(1deg) scale(1);}
+    100% { transform: translateY(0) rotate(-2deg) scale(1);}
+}
+@keyframes dragonBlink { /* Tus keyframes */
+    0%, 88%, 100% { filter: none;}
+    92%, 94% { filter: brightness(0.7) contrast(1.8);}
+}
+
+/* Tooltip del dragón (tus estilos) */
+.dragon-tooltip {
+    opacity: 0;
+    pointer-events: none;
+    position: absolute;
+    top: 100%; /* Lo posicionamos debajo del dragón y el control */
+    right: 0; /* Alineado a la derecha del #floating-dragon */
+    background: rgba(25, 32, 35, 0.98);
+    color: #caffec;
+    padding: 0.6em 1.2em;
+    margin-top: 8px;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px #0008;
+    font-size: 1.12em;
+    font-family: 'serif', 'Segoe UI', Arial, sans-serif;
+    white-space: nowrap;
+    transition: opacity 0.4s, background 0.5s;
+    z-index: 2; /* Para que esté por encima de otros elementos pero debajo del dragón */
+    text-shadow: 0 2px 8px #19a08c44, 0 0 2px #fff;
+    backdrop-filter: blur(2px);
+    /* Ajuste para que el tooltip se adapte al ancho del dragón flotante o se desborde */
+    max-width: 250px; /* Un ancho máximo razonable */
+    text-align: center;
+}
+.dragon-tooltip.visible {
+    opacity: 1;
+    background: rgba(25, 32, 35, 1);
+}
+.dragon-tooltip::after {
+    content: '';
+    position: absolute;
+    bottom: 100%; /* Flecha apuntando hacia arriba */
+    right: 15px; /* Ajusta la posición de la flecha */
+    border-width: 8px;
+    border-style: solid;
+    border-color: transparent transparent rgba(25, 32, 35, 0.98) transparent;
+}
+
+
+/* CONTROLES DE MÚSICA (Integrando tus estilos con los míos) */
+/* El #music-toggle original ya no se usa como botón, se reemplaza por music-control-container */
+/* Eliminado: #music-toggle y sus estilos, ya que el HTML cambió */
+
+.music-control-container {
+    display: flex;
+    align-items: center;
+    gap: 8px; /* Espacio entre el icono y el slider */
+    /* Tus estilos de fondo y sombra etéreos */
+    background: rgba(33, 255, 197, 0.1); 
+    border-radius: 20px; 
+    padding: 6px 12px;
+    box-shadow: 0 0 8px rgba(33, 255, 197, 0.3), 
+                0 0 3px rgba(255, 255, 255, 0.4);
+    transition: all 0.3s ease-in-out;
+    cursor: pointer; 
+    backdrop-filter: blur(3px); /* Efecto de cristal */
+    align-self: flex-end; /* Alinea este contenedor a la derecha dentro del #floating-dragon */
+    width: fit-content; /* Se ajusta al contenido */
+}
+
+.music-control-container:hover {
+    background: rgba(33, 255, 197, 0.2);
+    box-shadow: 0 0 12px rgba(33, 255, 197, 0.5),
+                0 0 5px rgba(255, 255, 255, 0.6);
+}
+
+/* Estilo del icono de música dentro del contenedor */
+.music-icon-initial {
+    font-size: 1.5em; 
+    line-height: 1;
+    color: #fff; 
+    text-shadow: 0 0 8px rgba(33, 255, 197, 0.8), 0 0 3px rgba(255, 255, 255, 0.5); 
+    transition: text-shadow 0.3s ease-in-out, transform 0.2s ease-in-out;
+}
+
+.music-icon-initial:active {
+    transform: scale(0.9); 
+}
+
+/* Estilos para el slider de volumen */
+#volume-slider {
+    -webkit-appearance: none; 
+    width: 80px; 
+    height: 6px; 
+    background: rgba(255, 255, 255, 0.3); 
+    border-radius: 3px;
+    outline: none;
+    transition: background 0.2s ease-in-out;
+}
+
+/* Estilo para la barra cuando se arrastra (track) */
+#volume-slider::-webkit-slider-runnable-track {
+    -webkit-appearance: none;
+    height: 6px;
+    background: linear-gradient(to right, #21FFC5, #B6E6F8); 
+    border-radius: 3px;
+    box-shadow: 0 0 5px rgba(33, 255, 197, 0.6);
+}
+
+#volume-slider::-moz-range-track {
+    height: 6px;
+    background: linear-gradient(to right, #21FFC5, #B6E6F8);
+    border-radius: 3px;
+    box-shadow: 0 0 5px rgba(33, 255, 197, 0.6);
+}
+
+/* Estilo para el "pulgar" (thumb) del slider */
+#volume-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    border: none;
+    height: 16px; 
+    width: 16px;
+    border-radius: 50%; 
+    background: #21FFC5; 
+    margin-top: -5px; 
+    box-shadow: 0 0 10px rgba(33, 255, 197, 0.8), 0 0 3px rgba(255, 255, 255, 0.7); 
+    cursor: grab;
+    transition: background 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+#volume-slider::-webkit-slider-thumb:active {
+    cursor: grabbing;
+    background: #00E6B6; 
+    box-shadow: 0 0 15px rgba(33, 255, 197, 1), 0 0 5px rgba(255, 255, 255, 1);
+}
+
+#volume-slider::-moz-range-thumb {
+    border: none;
+    height: 16px;
+    width: 16px;
+    border-radius: 50%;
+    background: #21FFC5;
+    box-shadow: 0 0 10px rgba(33, 255, 197, 0.8), 0 0 3px rgba(255, 255, 255, 0.7);
+    cursor: grab;
+    transition: background 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+#volume-slider:focus::-webkit-slider-thumb {
+    box-shadow: 0 0 0 3px #B6E6F8, 0 0 10px rgba(33, 255, 197, 0.8); /* Foco para accesibilidad */
+}
+
+#volume-slider:focus::-moz-range-thumb {
+    box-shadow: 0 0 0 3px #B6E6F8, 0 0 10px rgba(33, 255, 197, 0.8);
+}
+
+
+/* Main Carousel */
+#main-carousel,
+#carousel-section,
+#carousel-container,
+#carousel {
+    width: 100vw;
+    height: 100vh;
+    min-width: 0;
+    min-height: 0;
+    margin: 0;
+    padding: 0;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: transparent;
+    box-shadow: none;
+    border-radius: 0;
+    z-index: 2;
+    overflow: hidden;
+}
+#carousel-image {
+    width: 100vw;
+    height: 100vh;
+    object-fit: cover; /* Cambiado a cover para cubrir toda la pantalla */
+    background: transparent;
+    border: none;
+    margin: 0;
+    box-shadow: none;
+    border-radius: 0;
+    max-width: 100vw;
+    max-height: 100vh;
+    min-width: 0;
+    min-height: 0;
+    /* Añade transición por defecto para filter */
+    transition: filter 0.8s cubic-bezier(.66,0,.33,1), transform 0.3s cubic-bezier(.66,0,.33,1);
+    will-change: filter, transform;
+    touch-action: pan-y; /* Permite desplazamiento vertical pero horizontal es para el carrusel */
+    cursor: pointer;
+    display: block;
+    position: absolute; /* Para que ocupe todo el espacio del contenedor del carrusel */
+    top: 0; left: 0;
+}
+
+
+/* Botón Flotante de WhatsApp */
+.whatsapp-float {
+    position: fixed;
+    width: 60px;
+    height: 60px;
+    bottom: 40px;
+    right: 40px;
+    background: rgba(33, 255, 197, 0.15); /* Fondo etéreo, semitransparente como tu overlay */
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 0 15px rgba(33, 255, 197, 0.4), /* Sombra luminosa y etérea */
+                0 0 5px rgba(255, 255, 255, 0.6); /* Pequeño halo blanco */
+    z-index: 10000; /* Asegura que esté por encima de la mayoría */
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out, background 0.3s ease-in-out;
+    cursor: pointer;
+    backdrop-filter: blur(2px); /* Un toque de blur para el efecto "flotante" */
+}
+
+.whatsapp-float img {
+    width: 34px; /* Tamaño del icono */
+    height: 34px;
+    filter: drop-shadow(0 0 5px rgba(0, 255, 192, 0.4)) brightness(1.2); /* Efecto de brillo y sombra en el icono */
+    transition: filter 0.3s ease-in-out;
+}
+
+.whatsapp-float:hover {
+    transform: scale(1.15); /* Más pronunciado para tu estilo */
+    background: rgba(33, 255, 197, 0.3); /* Un poco más de color al pasar el mouse */
+    box-shadow: 0 0 25px rgba(33, 255, 197, 0.7), /* Sombra más intensa al pasar el mouse */
+                0 0 10px rgba(255, 255, 255, 0.8);
+}
+
+/* RESPONSIVE */
+@media (max-width: 700px) {
+    .welcome-content h1 {
+        font-size: 2.2em; /* Ajustes de tamaño para móviles */
+    }
+    .welcome-content p {
+        font-size: 1em;
+    }
+    #sapo-dragon-welcome { 
+        width: 88vw; /* Tu ajuste para móviles */
+    }
+    #carousel-image { 
+        min-width: 0; min-height: 0; /* Tus ajustes para móviles */
+    }
+    
+    /* Ajustes para el dragón flotante y el control de música en móviles */
+    #floating-dragon {
+        width: 25vw; /* Tu ancho para móviles */
+        min-width: 62px;
+        max-width: 110px;
+        top: 8px; /* Ajuste de posición */
+        right: 8px; /* Ajuste de posición */
+        gap: 5px; /* Espacio reducido entre dragón y control */
+    }
+    .music-control-container {
+        padding: 4px 8px; /* Padding más pequeño */
+        gap: 5px; /* Espacio reducido dentro del contenedor de música */
+    }
+    #volume-slider {
+        width: 60px; /* Ancho más pequeño para móviles */
+        height: 5px;
+    }
+    #volume-slider::-webkit-slider-thumb,
+    #volume-slider::-moz-range-thumb {
+        height: 14px;
+        width: 14px;
+        margin-top: -4.5px;
+    }
+    .music-icon-initial {
+        font-size: 1.2em; /* Icono más pequeño */
+    }
+
+    /* WhatsApp Float Button en móviles */
+    .whatsapp-float {
+        width: 50px;
+        height: 50px;
+        bottom: 25px;
+        right: 25px;
+    }
+    .whatsapp-float img {
+        width: 30px;
+        height: 30px;
+    }
+}

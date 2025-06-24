@@ -1,19 +1,20 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // Loader y bienvenida animada
+    // Referencias a los elementos del DOM
     const loader = document.getElementById('loader');
     const welcomeOverlay = document.getElementById('welcome-overlay');
     const sapoDragon = document.getElementById('sapo-dragon-welcome');
     const floatingDragon = document.getElementById('floating-dragon');
     const music = document.getElementById('background-music');
-    const musicToggle = document.getElementById('music-toggle');
-    const musicIcon = document.getElementById('music-icon');
+    const musicControlContainer = document.getElementById('music-control-container');
+    const musicIconInitial = document.getElementById('music-icon-initial');
+    const volumeSlider = document.getElementById('volume-slider');
+    const dragonTooltip = floatingDragon ? floatingDragon.querySelector('#dragon-tooltip') : null;
 
-    // Esperar a que el sapo dragon gif esté completamente cargado antes de mostrarlo
+    // Loader y overlay de bienvenida
     if (sapoDragon && loader && welcomeOverlay) {
         welcomeOverlay.style.display = "none";
         loader.style.display = "flex";
-        // Precarga el gif
-        const sapoImg = new window.Image();
+        const sapoImg = new Image();
         sapoImg.src = sapoDragon.src;
         sapoImg.onload = function() {
             loader.style.opacity = 0;
@@ -23,89 +24,96 @@ document.addEventListener('DOMContentLoaded', () => {
                 welcomeOverlay.style.opacity = 1;
             }, 400);
         };
+        sapoImg.onerror = function() {
+            loader.style.display = "none";
+            welcomeOverlay.style.display = "flex";
+            welcomeOverlay.style.opacity = 1;
+        };
+    } else {
+        if (loader) loader.style.display = 'none';
+        if (welcomeOverlay) welcomeOverlay.style.display = 'flex';
     }
 
-    // Sapo dragón GIF es el botón de entrada
+    // Entrada al mundo: click o enter en sapo
     if (sapoDragon && welcomeOverlay && floatingDragon) {
         sapoDragon.style.cursor = 'pointer';
-        sapoDragon.title = 'Entrar';
+        sapoDragon.title = 'Entrar al Otro Mundo'; 
         sapoDragon.addEventListener('click', () => {
             welcomeOverlay.classList.add('hide');
-            welcomeOverlay.addEventListener('transitionend', () => {
+            let hideDone = false;
+            function finishHide() {
+                if (hideDone) return;
+                hideDone = true;
                 welcomeOverlay.style.display = 'none';
-                // Muestra el dragón flotante
                 floatingDragon.style.display = 'flex';
-                
-                // *** INICIO DE LA MODIFICACIÓN CLAVE PARA LA MÚSICA ***
+                // Música al entrar
                 if (music) {
-                    // Intenta reproducir la música y maneja la promesa
                     const playPromise = music.play();
-
                     if (playPromise !== undefined) {
                         playPromise.then(() => {
-                            // La reproducción se inició correctamente
-                            music.volume = 0.55; // Ajusta el volumen una vez que se ha empezado a reproducir
-                            updateMusicIcon(); // Actualiza el icono a "sonando"
-                        }).catch(error => {
-                            // La reproducción fue bloqueada por el navegador (ej. política de autoplay)
-                            console.warn('La reproducción automática de audio fue bloqueada:', error);
-                            // Muestra el icono de "silencio" si no se pudo reproducir
-                            updateMusicIcon(); 
+                            music.volume = 0.55;
+                            if (volumeSlider) volumeSlider.value = music.volume;
+                            updateMusicIcon();
+                        }).catch(() => {
+                            updateMusicIcon();
                         });
                     }
                 }
-                // *** FIN DE LA MODIFICACIÓN CLAVE PARA LA MÚSICA ***
-
-            }, { once: true });
+            }
+            welcomeOverlay.addEventListener('transitionend', finishHide, { once: true });
+            setTimeout(finishHide, 1000);
         });
-        // Accesibilidad: enter o espacio
         sapoDragon.setAttribute('tabindex', '0');
         sapoDragon.addEventListener('keypress', (e) => {
             if (e.key === ' ' || e.key === 'Enter') sapoDragon.click();
         });
     }
 
-    // Botón de música en dragón flotante
+    // Control de música
     function updateMusicIcon() {
-        if (!music || !musicIcon) return; // Asegurar que existan los elementos
-
+        if (!music || !musicIconInitial) return; 
         if (!music.paused) {
-            musicIcon.textContent = "🔊"; // Sonando
-            musicToggle.title = "Pausar música";
+            musicIconInitial.textContent = "🔊";
+            musicControlContainer.title = "Pausar música"; 
         } else {
-            musicIcon.textContent = "🔈"; // Silenciado
-            musicToggle.title = "Reproducir música";
+            musicIconInitial.textContent = "🔈";
+            musicControlContainer.title = "Reproducir música"; 
         }
     }
-
-    if (musicToggle && music) {
-        musicToggle.addEventListener('click', () => {
+    if (musicControlContainer && music && musicIconInitial && volumeSlider) {
+        musicIconInitial.addEventListener('click', (event) => {
+            event.stopPropagation(); 
             if (music.paused) {
-                // Intenta reproducir solo si está pausada
                 const playPromise = music.play();
                 if (playPromise !== undefined) {
-                    playPromise.then(() => {
-                        updateMusicIcon(); // Actualiza el icono si se reproduce
-                    }).catch(error => {
-                        console.warn('Error al intentar reproducir música por el usuario:', error);
-                        // El icono ya estará en "pausado" si falló la reproducción.
-                    });
+                    playPromise.then(updateMusicIcon).catch(updateMusicIcon);
                 }
             } else {
-                // Pausa la música
                 music.pause();
-                updateMusicIcon(); // Actualiza el icono a "silencio"
+                updateMusicIcon();
             }
         });
-        // También actualizar icono si música se pausa/play por otras razones
-        music.addEventListener('play', updateMusicIcon);
-        music.addEventListener('pause', updateMusicIcon);
-        
-        // Llama a updateMusicIcon al cargar para establecer el estado inicial correcto
-        updateMusicIcon(); 
+        volumeSlider.addEventListener('input', () => {
+            music.volume = parseFloat(volumeSlider.value);
+            if (music.volume > 0 && music.paused && !music.autoplay) { 
+                const playPromise = music.play();
+                if (playPromise !== undefined) {
+                    playPromise.catch(()=>{});
+                }
+            } else if (music.volume === 0 && !music.paused) {
+                music.pause(); 
+            }
+            updateMusicIcon(); 
+        });
+        music.addEventListener('volumechange', () => {
+            volumeSlider.value = music.volume;
+            updateMusicIcon();
+        });
+        volumeSlider.value = music.volume;
+        updateMusicIcon();
     }
 
-    // Partículas ambientales
+    // Partículas ambientales con tsParticles
     if (window.tsParticles) {
         tsParticles.load('ambient-particles', {
             fullScreen: { enable: false },
@@ -135,14 +143,17 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Carrusel de imágenes (igual que antes)
+    // Carrusel de imágenes
     const carouselImages = [];
-    for (let i = 1; i <= 452; i++) {
+    for (let i = 1; i <= 240; i++) {
         const num = i.toString().padStart(3, '0');
         carouselImages.push(`img/sucu${num}.jpg`);
     }
     let currentIndex = 0;
     const carouselImg = document.getElementById('carousel-image');
+    if (carouselImg && carouselImages.length > 0) {
+        carouselImg.src = carouselImages[currentIndex];
+    }
     const magicEffects = [
         "filter: brightness(1.2) contrast(1.8) saturate(2.8) hue-rotate(40deg);",
         "filter: hue-rotate(120deg) saturate(2.8) brightness(1.4);",
@@ -199,33 +210,28 @@ document.addEventListener('DOMContentLoaded', () => {
     while (magicEffects.length < 100) {
         magicEffects.push(magicEffects[Math.floor(Math.random() * magicEffects.length)]);
     }
-
-    // Siempre que cambies de imagen (por cualquier método), la imagen debe quedar original y con transición suave
     function setOriginalWithTransition() {
-        carouselImg.style.transition = 'filter 0.8s cubic-bezier(.66,0,.33,1)';
-        carouselImg.style.filter = '';
+        if (carouselImg) {
+            carouselImg.style.transition = 'filter 0.8s cubic-bezier(.66,0,.33,1)';
+            carouselImg.style.filter = '';
+        }
     }
-
     function showMagicEffect() {
+        if (!carouselImg || carouselImages.length === 0) return;
         currentIndex = (currentIndex + 1) % carouselImages.length;
         carouselImg.src = carouselImages[currentIndex];
         const randomIndex = Math.floor(Math.random() * magicEffects.length);
-        // Aplica el efecto
         carouselImg.style.transition = 'filter 0.45s cubic-bezier(.66,0,.33,1)';
         carouselImg.style.filter = magicEffects[randomIndex].replace('filter:', '').replace(';', '');
-        // Quita el efecto con transición suave
         setTimeout(setOriginalWithTransition, 600);
     }
-
     let touchStartX = null;
     let touchEndX = null;
     let isMobile = window.matchMedia("(max-width: 700px)").matches;
-
     function handleGesture() {
         if (touchStartX === null || touchEndX === null) return;
         const diff = touchEndX - touchStartX;
         if (Math.abs(diff) > 40) {
-            // Quita filtro con transición suave antes de cambiar imagen
             setOriginalWithTransition();
             setTimeout(() => {
                 if (diff > 0) {
@@ -234,52 +240,44 @@ document.addEventListener('DOMContentLoaded', () => {
                     currentIndex = (currentIndex + 1) % carouselImages.length;
                 }
                 carouselImg.src = carouselImages[currentIndex];
-            }, 250); // tiempo para que la transición se note
+            }, 250); 
         }
         touchStartX = null;
         touchEndX = null;
     }
-
-    if (isMobile) {
-        carouselImg.addEventListener('touchstart', (e) => {
-            touchStartX = e.changedTouches[0].screenX;
-        });
-        carouselImg.addEventListener('touchend', (e) => {
-            touchEndX = e.changedTouches[0].screenX;
-            handleGesture();
-        });
-        carouselImg.addEventListener('click', showMagicEffect);
-    } else {
-        carouselImg.addEventListener('click', showMagicEffect);
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
-                // Quita filtro con transición suave antes de cambiar imagen
-                setOriginalWithTransition();
-                setTimeout(() => {
-                    if (e.key === 'ArrowRight') {
-                        currentIndex = (currentIndex + 1) % carouselImages.length;
-                    } else {
-                        currentIndex = (currentIndex - 1 + carouselImages.length) % carouselImages.length;
-                    }
-                    carouselImg.src = carouselImages[currentIndex];
-                }, 250); // tiempo para que la transición se note
-            }
-        });
+    if (carouselImg) {
+        if (isMobile) {
+            carouselImg.addEventListener('touchstart', (e) => {
+                touchStartX = e.changedTouches[0].screenX;
+            });
+            carouselImg.addEventListener('touchend', (e) => {
+                touchEndX = e.changedTouches[0].screenX;
+                handleGesture();
+            });
+            carouselImg.addEventListener('click', showMagicEffect);
+        } else {
+            carouselImg.addEventListener('click', showMagicEffect);
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+                    setOriginalWithTransition();
+                    setTimeout(() => {
+                        if (e.key === 'ArrowRight') {
+                            currentIndex = (currentIndex + 1) % carouselImages.length;
+                        } else {
+                            currentIndex = (currentIndex - 1 + carouselImages.length) % carouselImages.length;
+                        }
+                        carouselImg.src = carouselImages[currentIndex];
+                    }, 250); 
+                }
+            });
+        }
     }
 
     // Dragón flotante (tooltip y efecto)
-    const dragonTooltip = floatingDragon ? floatingDragon.querySelector('#dragon-tooltip') : null;
     let tooltipTimeout = null;
     if (floatingDragon) {
-        floatingDragon.addEventListener('mouseenter', () => {
-            floatingDragon.classList.add('active');
-        });
-        floatingDragon.addEventListener('mouseleave', () => {
-            floatingDragon.classList.remove('active');
-        });
         floatingDragon.addEventListener('click', (e) => {
-            // No interrumpir si fue click sobre botón música
-            if (e.target === musicToggle || e.target === musicIcon) return;
+            if (musicControlContainer && musicControlContainer.contains(e.target)) return; 
             if (dragonTooltip) {
                 dragonTooltip.classList.add('visible');
                 if (tooltipTimeout) clearTimeout(tooltipTimeout);
@@ -288,7 +286,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 }, 2500);
             }
             document.body.style.filter = "brightness(1.5) blur(2px)";
-            setTimeout(() => { document.body.style.filter = ""; }, 350);
+            setTimeout(() => { 
+                document.body.style.filter = ""; 
+            }, 350);
         });
     }
 });

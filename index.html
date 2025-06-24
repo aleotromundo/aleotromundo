@@ -9,13 +9,11 @@
     <script src="https://cdn.jsdelivr.net/npm/tsparticles@3.3.0/tsparticles.bundle.min.js"></script>
 </head>
 <body>
-    <!-- Loader de carga inicial -->
     <div id="loader">
         <img src="img/loader.gif" alt="Cargando..." id="loader-img">
         <span class="loader-text">Cargando...</span>
     </div>
 
-    <!-- Overlay de bienvenida -->
     <div id="welcome-overlay" style="display:none;">
         <div class="welcome-content">
             <h1>Bienvenido, viajero. Estás a punto de cruzar el umbral hacia Otro Mundo.</h1>
@@ -24,18 +22,16 @@
         </div>
     </div>
 
-    <!-- Dragón flotante (invisible hasta entrar) -->
     <div id="floating-dragon" style="display:none;">
         <img src="img/sapo-dragon-flotante.png" alt="Sapo dragón flotante">
-        <button id="music-toggle" title="Reproducir/Pausar música" aria-label="Reproducir o pausar música">
-            <span id="music-icon">🔊</span>
-        </button>
+        
+        <div id="music-control-container" class="music-control-container"> <span id="music-icon-initial" class="music-icon-initial" title="Mute/Unmute">🔊</span> <input type="range" id="volume-slider" min="0" max="1" step="0.05" value="0.55" aria-label="Control de volumen de la música">
+        </div>
         <div id="dragon-tooltip" class="dragon-tooltip">Aquí yace la sabiduría del jardín</div>
     </div>
 
     <div id="ambient-particles"></div>
 
-    <!-- Música oculta -->
     <audio id="background-music" src="audio/musica-fondo.mp3" loop preload="auto"></audio>
 
     <main id="main-carousel">
@@ -48,12 +44,11 @@
         </section>
     </main>
 
-    <script src="js/script.js"></script>
-<a href="https://wa.me/59894691690?text=Hola,%20me%20interesa%20saber%20más%20sobre%20las%20suculentas%20de%20Otro%20Mundo."
-       class="whatsapp-float"
-       target="_blank"
-       rel="noopener noreferrer"
-       title="Chatea con nosotros por WhatsApp">
+    <a href="https://wa.me/59894691690?text=Hola,%20me%20interesa%20saber%20más%20sobre%20las%20suculentas%20de%20Otro%20Mundo."
+        class="whatsapp-float"
+        target="_blank"
+        rel="noopener noreferrer"
+        title="Chatea con nosotros por WhatsApp">
         <img src="img/whatsapp.gif" alt="WhatsApp">
     </a>
 
